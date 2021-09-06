@@ -1,1 +1,52 @@
-// TODO
+.PostContainer {
+  max-width: 500px;
+  margin: 0 auto;
+
+  img {
+    width: 15rem;
+    height: 1.5rem;
+    margin: 2rem 0 !important;
+  }
+
+  .post {
+    margin: 2.5rem 0;
+    color:var(--gray-light);
+    transition: all 400ms;
+    cursor: pointer;
+
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    p{
+      padding: 0.4rem 0 0.9rem 0;
+      font-style: normal;
+      font-size: 1.1rem;
+    }
+
+    .Icons{
+      line-height: 1.4rem;
+      font-size: 14px;
+      display: flex;
+
+      svg{
+        margin-right:.3rem;
+        width:20px;
+        height: 20px;
+      }
+
+      svg:nth-child(3){
+        margin-left:.8rem;
+      }
+    }
+  }
+
+  .post:hover{
+    color:var(--pink);
+  }
+
+  a{
+    font-weight: bold;
+    color:var(--pink);
+  }
+}
