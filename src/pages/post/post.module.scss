@@ -1,3 +1,41 @@
 .postContent{
   max-width: 720px;
+  margin: 0 auto;
+
+  h1{
+    margin: 1rem 0;
+  }
+
+  .Icons{
+    line-height: 1.4rem;
+    font-size: 14px;
+    display: flex;
+    color: var(--gray);
+
+    svg{
+      margin-right:.3rem;
+      width:20px;
+      height: 20px;
+    }
+
+    svg:nth-child(2){
+      margin-left:.8rem;
+    }
+
+    svg:nth-child(3){
+      margin-left:.8rem;
+    }
+
+    svg:nth-child(5){
+      margin-left:.8rem;
+    }
+  }
+
+  h2{
+    margin: 2rem 0;
+  }
+
+  p{
+    color: var(--gray);
+  }
 }
