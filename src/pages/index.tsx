@@ -1,12 +1,9 @@
 import { GetStaticProps } from 'next';
-import Image from 'next/image';
-import { FiCalendar, FiUser } from "react-icons/fi";
-
 import { getPrismicClient } from '../services/prismic';
-
-import Logo from '../assets/Logo.svg'
 import commonStyles from '../styles/common.module.scss';
+import { FiCalendar, FiUser } from "react-icons/fi";
 import styles from './home.module.scss';
+import Header from '../components/Header'
 
 
 interface Post {
@@ -31,7 +28,7 @@ interface HomeProps {
 export default function Home() {
   return (
     <div className={styles.PostContainer}>
-      <Image src={Logo} alt="Logo" width="100%" height="100%" />      
+      <Header />
       <div className={styles.post}>
         <h1>Como utilizar Hooks</h1>
         <p>Pensando em sincronização em vez de ciclos de vida.</p>

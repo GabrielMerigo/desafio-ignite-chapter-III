@@ -1,1 +1,10 @@
-// TODO
+.headerContainer{
+  background: var(--black);
+  max-width: 500px;
+  margin: 2rem auto;
+
+  img {
+    width: 200px;
+    height: 40px;
+  }
+}
