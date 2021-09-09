@@ -1,5 +1,6 @@
 import { GetStaticProps } from 'next';
 import { getPrismicClient } from '../services/prismic';
+import Prismic from '@prismicio/client';
 import commonStyles from '../styles/common.module.scss';
 import { FiCalendar, FiUser } from "react-icons/fi";
 import styles from './home.module.scss';
@@ -25,54 +26,45 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home() {
+export default function Home(props: HomeProps) {
   return (
     <div className={styles.PostContainer}>
       <Header />
-      <div className={styles.post}>
-        <h1>Como utilizar Hooks</h1>
-        <p>Pensando em sincronização em vez de ciclos de vida.</p>
-        <div className={styles.Icons}>
-          <FiCalendar/><time>19 abr 2021</time>
-          <FiUser/><span>Gabriel Merigo</span>
+      {props.postsPagination.results.map(post => (
+        <div key={post.uid} className={styles.post}>
+          <h1>{post.data.title}</h1>
+          <p>{post.data.subtitle}</p>
+          <div className={styles.Icons}>
+            <FiCalendar /><time>19 abr 2021</time>
+            <FiUser /><span>Gabriel Merigo</span>
+          </div>
         </div>
-      </div>
-
-      <div className={styles.post}>
-        <h1>Criando um app CRA do zero</h1>
-        <p>Tudo sobre como criar a sua primeira aplicação utilizando Create React App.</p>
-        <div className={styles.Icons}>
-          <FiCalendar/><time>19 Abr 2021</time>
-          <FiUser/><span>Danilo Vieira</span>
-        </div>
-      </div>
-
-      <div className={styles.post}>
-        <h1>Como utilizar Hooks</h1>
-        <p>Pensando em sincronização em vez de ciclos de vida.</p>
-        <div className={styles.Icons}>
-          <FiCalendar/><time>19 abr 2021</time>
-          <FiUser/><span>Gabriel Merigo</span>
-        </div>
-      </div>
-
-      <div className={styles.post}>
-        <h1>Criando um app CRA do zero</h1>
-        <p>Tudo sobre como criar a sua primeira aplicação utilizando Create React App.</p>
-        <div className={styles.Icons}>
-          <FiCalendar/><time>19 Abr 2021</time>
-          <FiUser/><span>Danilo Vieira</span>
-        </div>
-      </div>
+      ))}
 
       <a>Carregar mais posts</a>
     </div>
   )
 }
 
-// export const getStaticProps = async () => {
-//   // const prismic = getPrismicClient();
-//   // const postsResponse = await prismic.query(TODO);
+export const getStaticProps: GetStaticProps = async () => {
+  const prismic = getPrismicClient();
+  const postsResponse = await prismic.query([Prismic.Predicates.at('document.type', 'post')]);
 
-//   // TODO
-// };
+  const posts = postsResponse.results.map(post => {
+    return {
+      uid: post.uid,
+      first_publication_date: post.first_publication_date,
+      data: {
+        title: post.data.title,
+        subtitle: post.data.subtitle,
+        author: post.data.author,
+      }
+    }
+  })
+
+  return {
+    props: {
+      posts
+    }
+  }
+};
