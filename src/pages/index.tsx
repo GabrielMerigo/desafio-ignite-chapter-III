@@ -26,11 +26,16 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home(props: HomeProps) {
+interface Posts {
+  posts: Post[]
+}
+
+export default function Home(props: Posts) {
+
   return (
     <div className={styles.PostContainer}>
       <Header />
-      {props.postsPagination.results.map(post => (
+      {(props.posts.map(post => (
         <div key={post.uid} className={styles.post}>
           <h1>{post.data.title}</h1>
           <p>{post.data.subtitle}</p>
@@ -39,7 +44,7 @@ export default function Home(props: HomeProps) {
             <FiUser /><span>Gabriel Merigo</span>
           </div>
         </div>
-      ))}
+      )))}
 
       <a>Carregar mais posts</a>
     </div>
@@ -48,7 +53,10 @@ export default function Home(props: HomeProps) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient();
-  const postsResponse = await prismic.query([Prismic.Predicates.at('document.type', 'post')]);
+  const postsResponse = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'post')],
+    { fetch: ['post.title', 'post.subtitle', 'post.author'], pageSize: 1 }
+  );
 
   const posts = postsResponse.results.map(post => {
     return {
@@ -62,6 +70,7 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   })
 
+  console.log(postsResponse.results)
   return {
     props: {
       posts
