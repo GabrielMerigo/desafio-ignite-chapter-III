@@ -30,7 +30,7 @@ interface Posts {
   posts: Post[]
 }
 
-export default function Home(props: HomeProps) {
+export default function Home(props: HomeProps): JSX.Element{
   console.log(props)
   setTimeout(() => {
     console.log(props.postsPagination.results)
