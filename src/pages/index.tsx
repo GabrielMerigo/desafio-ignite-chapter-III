@@ -32,21 +32,21 @@ interface HomeProps {
 
 
 export default function Home(props: HomeProps): JSX.Element{
-  // console.log(props.postsPagination.results)
+
   return (
     <>
       <div className={styles.PostContainer}>
         <Header />
-        {(props.postsPagination.results.map(post => {
+        {(props.postsPagination.results.map(post => (
           <div key={post.uid} className={styles.post}>
             <h1>{post.data.title}</h1>
             <p>{post.data.subtitle}</p>
             <div className={styles.Icons}>
-              <FiCalendar /><time>19 abr 2021</time>
-              <FiUser /><span>Gabriel Merigo</span>
+              <FiCalendar /><time>{post.first_publication_date}</time>
+              <FiUser /><span>{post.data.author}</span>
             </div>
           </div>
-        }))}
+        )))}
 
         <a>Carregar mais posts</a>
       </div>
