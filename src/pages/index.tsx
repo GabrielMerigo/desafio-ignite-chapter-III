@@ -31,7 +31,6 @@ interface Posts {
 }
 
 export default function Home(props: Posts) {
-
   return (
     <div className={styles.PostContainer}>
       <Header />
