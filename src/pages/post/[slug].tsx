@@ -71,16 +71,20 @@ export default function Post() {
   );
 };
 
-// export const getStaticPaths = async () => {
-//   const prismic = getPrismicClient();
-//   const posts = await prismic.query(TODO);
+export const getStaticPaths = async params => {
+  const prismic = getPrismicClient();
+  // const posts = await prismic.query(TODO);
 
-//   // TODO
-// };
+  console.log(params)
+};
 
-// export const getStaticProps = async context => {
-//   const prismic = getPrismicClient();
-//   const response = await prismic.getByUID(TODO);
+/* Quando temos id's dinâmicos nós damos uma dica para o next de qual dos id a 
+rota pode receber
+*/
 
-//   // TODO
-// };
+export const getStaticProps = async context => {
+  const prismic = getPrismicClient();
+  // const response = await prismic.getByUID(TODO);
+
+  console.log(context)
+};
