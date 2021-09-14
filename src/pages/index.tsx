@@ -5,7 +5,7 @@ import commonStyles from '../styles/common.module.scss';
 import { FiCalendar, FiUser } from "react-icons/fi";
 import styles from './home.module.scss';
 import Header from '../components/Header'
-import { Head } from 'next/document';
+import { Link } from 'prismic-dom';
 
 
 interface Post {
@@ -29,23 +29,22 @@ interface HomeProps {
   preview: boolean;
 }
 
-
-
-export default function Home(props: HomeProps): JSX.Element{
-
+export default function Home(props: HomeProps): JSX.Element {
   return (
     <>
       <div className={styles.PostContainer}>
         <Header />
         {(props.postsPagination.results.map(post => (
-          <div key={post.uid} className={styles.post}>
-            <h1>{post.data.title}</h1>
-            <p>{post.data.subtitle}</p>
-            <div className={styles.Icons}>
-              <FiCalendar /><time>{post.first_publication_date}</time>
-              <FiUser /><span>{post.data.author}</span>
+          <a href={`/post/${post.uid}`}>
+            <div key={post.uid} className={styles.post}>
+              <h1>{post.data.title}</h1>
+              <p>{post.data.subtitle}</p>
+              <div className={styles.Icons}>
+                <FiCalendar /><time>{post.first_publication_date}</time>
+                <FiUser /><span>{post.data.author}</span>
+              </div>
             </div>
-          </div>
+          </a>
         )))}
 
         <a>Carregar mais posts</a>

@@ -5,8 +5,8 @@ import Banner from '../../assets/Banner.png'
 import { FiCalendar, FiUser, FiClock } from "react-icons/fi";
 
 import { getPrismicClient } from '../../services/prismic';
-
 import commonStyles from '../../styles/common.module.scss';
+
 import styles from './post.module.scss';
 
 interface Post {
@@ -68,8 +68,8 @@ export default function Post() {
           Etiam eu tortor placerat, varius orci non, ornare nunc. Cras suscipit in ligula ultricies lacinia. Pellentesque at tristique sapien, et scelerisque leo. Donec eu nisi at magna tristique luctus vel at turpis. Nam vestibulum ornare ex cursus vulputate. In elementum tellus at sapien bibendum, id maximus mauris convallis. Donec facilisis porta lobortis. Vivamus mauris diam, pretium ac dolor. Pellentesque et consequat arcu, ac laoreet ante. Nam non.</p>
       </div>
     </>
-  )
-}
+  );
+};
 
 // export const getStaticPaths = async () => {
 //   const prismic = getPrismicClient();
