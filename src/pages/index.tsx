@@ -35,8 +35,8 @@ export default function Home(props: HomeProps): JSX.Element {
       <div className={styles.PostContainer}>
         <Header />
         {(props.postsPagination.results.map(post => (
-          <a href={`/post/${post.uid}`}>
-            <div key={post.uid} className={styles.post}>
+          <a href={`/post/${post.uid}`} key={post.uid}>
+            <div className={styles.post}>
               <h1>{post.data.title}</h1>
               <p>{post.data.subtitle}</p>
               <div className={styles.Icons}>

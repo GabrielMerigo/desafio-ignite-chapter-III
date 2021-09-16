@@ -3,6 +3,7 @@ import Header from '../../components/Header';
 import Img from 'next/image';
 import Banner from '../../assets/Banner.png'
 import { FiCalendar, FiUser, FiClock } from "react-icons/fi";
+import Prismic from '@prismicio/client';
 
 import { getPrismicClient } from '../../services/prismic';
 import commonStyles from '../../styles/common.module.scss';
@@ -73,18 +74,87 @@ export default function Post() {
 
 export const getStaticPaths = async params => {
   const prismic = getPrismicClient();
-  // const posts = await prismic.query(TODO);
+  const posts = await prismic.query(
+    [Prismic.predicates.at('document.type', 'post')],
+    {pageSize: 3}
+  );
 
-  console.log(params)
+  const paths = posts.results.map(result => {
+    return {
+      params: {
+        slug: result.uid
+      }
+    }
+  });
+
+  return {
+    paths,
+    fallback: true
+  }
 };
 
 /* Quando temos id's dinâmicos nós damos uma dica para o next de qual dos id a 
 rota pode receber
 */
 
-export const getStaticProps = async context => {
+export const getStaticProps: GetStaticProps = async ({
+  params, 
+  preview = false
+}) => {
   const prismic = getPrismicClient();
   // const response = await prismic.getByUID(TODO);
-
-  console.log(context)
 };
+
+/*
+export const getStaticProps: GetStaticProps<PostProps> = async ({
+  params,
+  preview = false,
+}) => {
+  const { slug } = params;
+
+  const prismic = getPrismicClient();
+
+  const response = await prismic.getByUID('post', String(slug), {});
+
+  const responsePreviousPost = await prismic.query(
+    Prismic.Predicates.at('document.type', 'post'),
+    {
+      pageSize: 1,
+      after: slug,
+      orderings: '[document.first_publication_date desc]',
+    }
+  );
+
+  const responseNextPost = await prismic.query(
+    Prismic.Predicates.at('document.type', 'post'),
+    { pageSize: 1, after: slug, orderings: '[document.first_publication_date]' }
+  );
+
+  const previousPost = verifyNextPost(responsePreviousPost, slug);
+
+  const nextPost = verifyNextPost(responseNextPost, slug);
+
+  const post: Post = {
+    uid: response.uid,
+    first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
+    data: {
+      title: response.data.title,
+      subtitle: response.data.subtitle,
+      banner: response.data.banner,
+      author: response.data.author,
+      content: response.data.content,
+    },
+  };
+
+  return {
+    props: {
+      post,
+      preview,
+      nextPost,
+      previousPost,
+    },
+    revalidate: 60 * 60, // 60 minutes
+  };
+};
+*/
