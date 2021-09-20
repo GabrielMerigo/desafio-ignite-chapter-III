@@ -40,16 +40,15 @@ function getPostWordsAmount(content: Post['data']['content']): number {
   const ALL_SPACES_REGEX = /\s+/g;
 
   return content.reduce((sum: number, section) => {
-    const headingWordsAmount = section.heading
+    const headingWords = section.heading
       ? section.heading?.split(ALL_SPACES_REGEX).length
       : 0;
 
-    const bodyWordsAmount = RichText.asText(section.body).split(
+    const bodyWords = RichText.asText(section.body).split(
       ALL_SPACES_REGEX
     ).length;
-    console.log('teste', bodyWordsAmount);
 
-    return headingWordsAmount + bodyWordsAmount + sum;
+    return headingWords + bodyWords + sum;
   }, 0);
 }
 

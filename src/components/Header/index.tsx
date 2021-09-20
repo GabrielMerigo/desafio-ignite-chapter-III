@@ -1,11 +1,28 @@
-import Image from 'next/image';
-import Logo from '../../../public/Logo.svg';
-import styles from './header.module.scss'
+import Link from 'next/link';
 
-export default function Header() {
+import commonStyles from '../../styles/common.module.scss';
+import styles from './Header.module.scss';
+
+interface HeaderProps {
+  isCurrentPageIndex?: boolean;
+}
+
+export default function Header({
+  isCurrentPageIndex,
+}: HeaderProps): JSX.Element {
   return (
-    <div className={styles.headerContainer}>
-      <Image src={Logo} alt="Logo" width="100%" height="100%" />
-    </div>
-  )
+    <header
+      className={`${styles.wrapper} ${
+        isCurrentPageIndex ? styles.hasMarginTop : ''
+      }`}
+    >
+      <div className={commonStyles.container}>
+        <Link href="/">
+          <a>
+            <img src="/logo.svg" alt="logo" />
+          </a>
+        </Link>
+      </div>
+    </header>
+  );
 }
