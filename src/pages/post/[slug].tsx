@@ -47,6 +47,7 @@ function getPostWordsAmount(content: Post['data']['content']): number {
     const bodyWordsAmount = RichText.asText(section.body).split(
       ALL_SPACES_REGEX
     ).length;
+    console.log(bodyWordsAmount);
 
     return headingWordsAmount + bodyWordsAmount + sum;
   }, 0);
