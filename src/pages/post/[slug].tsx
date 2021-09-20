@@ -1,30 +1,26 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
-import Head from 'next/head';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { FiCalendar, FiUser, FiClock, FiEdit } from 'react-icons/fi';
-import { format, parseISO } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { RichText } from 'prismic-dom';
+import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 import Prismic from '@prismicio/client';
+import { useRouter } from 'next/router';
+
+import { Label } from '../../components/Label';
+import { PostBanner } from '../../components/PostBanner';
 
 import { getPrismicClient } from '../../services/prismic';
 
-import Comments from '../../components/Comments';
-import PreviewButton from '../../components/PreviewButton';
-
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
+import { formatDate } from '../../utils/format';
 
 interface Post {
-  uid: string;
   first_publication_date: string | null;
-  last_publication_date: string | null;
+  uid?: string;
   data: {
     title: string;
-    subtitle: string;
     banner: {
       url: string;
+      alt?: string;
     };
     author: string;
     content: {
@@ -36,222 +32,105 @@ interface Post {
   };
 }
 
-interface NextPost {
-  title: string;
-  uid: string;
-}
-
-interface PostProps {
+interface PostPageProps {
   post: Post;
-  preview: boolean;
-  nextPost: NextPost;
-  previousPost: NextPost;
 }
 
-export default function Post({
-  post,
-  preview,
-  nextPost,
-  previousPost,
-}: PostProps): JSX.Element {
+// function getPostWordsAmount(content: Post['data']['content']): number {
+//   const ALL_SPACES_REGEX = /\s+/g;
+
+//   return content.reduce((sum: number, section) => {
+//     const headingWordsAmount = section.heading
+//       ? section.heading?.split(ALL_SPACES_REGEX).length
+//       : 0;
+
+//     const bodyWordsAmount = RichText.asText(section.body).split(
+//       ALL_SPACES_REGEX
+//     ).length;
+
+//     return headingWordsAmount + bodyWordsAmount + sum;
+//   }, 0);
+// }
+
+function getAproxReadingDuration(
+  wordsAmount: number,
+  wordsPerMinute = 200
+): string {
+  const aproxReadingDurationInMinutes = wordsAmount / wordsPerMinute;
+  return aproxReadingDurationInMinutes < 1
+    ? '< 1 min'
+    : `${Math.ceil(aproxReadingDurationInMinutes)} min`;
+}
+
+export default function Post({ post }: PostPageProps): JSX.Element {
   const router = useRouter();
 
-  if (router.isFallback) {
-    return <div>Carregando...</div>;
-  }
-
-  console.log(post.data)
-  const amountWordsTotalOfContent = RichText.asText(
-    post.data.content
-    .reduce((total, data) => [...total, ...data.body], []))
-    .split(' ').length;
-
-  const amountWordsOfContentHeading = post.data.content.reduce(
-    (total, data) => {
-      if (data.heading) {
-        return [...total, data.heading.split(' ')];
-      }
-
-      return [...total];
-    },
-    []
-  ).length;
-
-  const readingTime = Math.ceil(
-    (amountWordsTotalOfContent + amountWordsOfContentHeading) / 200
+  const aproxReadingDuration = getAproxReadingDuration(
+    // getPostWordsAmount(post.data.content)
+    12
   );
 
-  return (
-    <>
-      <Head>
-        <title>{post.data.title} | Space Traveling</title>
-      </Head>
-
-      {post.data.banner.url && (
-        <section className={styles.banner}>
-          <img src={post.data.banner.url} alt="Banner" />
-        </section>
-      )}
-
-      <main className={commonStyles.content}>
-        <article className={styles.post}>
-          <h1>{post.data.title}</h1>
-
-          <div className={styles.postInfo}>
-            <span>
-              <FiCalendar size={20} color="#bbbbbb" />
-              {format(parseISO(post.first_publication_date), 'dd MMM yyyy', {
-                locale: ptBR,
-              })}
-            </span>
-
-            <span>
-              <FiUser size={20} color="#bbbbbb" />
-              {post.data.author}
-            </span>
-
-            <span>
-              <FiClock size={20} color="#bbbbbb" />
-              {readingTime} min
-            </span>
-
-            <span>
-              <FiEdit size={20} color="#aaaaaa" />
-              {format(
-                parseISO(post.last_publication_date),
-                "'Editado' dd MMM yyyy",
-                {
-                  locale: ptBR,
-                }
-              )}
-            </span>
+  return router.isFallback ? (
+    <p>Carregando...</p>
+  ) : (
+    <main>
+      <PostBanner alt={post.data.banner.alt} imageUrl={post.data.banner.url} />
+      <article className={`${commonStyles.container} ${styles.postWrapper}`}>
+        <div>
+          <h1 className={styles.postTitle}>{post.data.title}</h1>
+          <div className={styles.postMetadata}>
+            <Label icon={<FiCalendar />}>
+              {formatDate(new Date(post.first_publication_date))}
+            </Label>
+            <Label icon={<FiUser />}>{post.data.author}</Label>
+            <Label icon={<FiClock />}>{aproxReadingDuration}</Label>
           </div>
-          <div className={styles.postContent}>
-            {post.data.content.map(({ heading, body }) => (
-              <div key={heading}>
-                {heading && <h2>{heading}</h2>}
-
-                <div
-                  className={styles.postSection}
-                  // eslint-disable-next-line react/no-danger
-                  // dangerouslySetInnerHTML={{ __html: RichText.asHtml(body) }}
-                />
-              </div>
-            ))}
+        </div>
+        {post.data.content.map(section => (
+          <div key={section.heading}>
+            <h2 className={styles.postContentTitle}>{section.heading}</h2>
+            <div
+              className={styles.postContentBody}
+              // dangerouslySetInnerHTML={{
+              //   __html: RichText.asHtml(section.body),
+              // }}
+            />
           </div>
-        </article>
-
-        <aside className={styles.footer}>
-          <div>
-            {previousPost && (
-              <>
-                <p>{previousPost.title}</p>
-                <Link href={`/post/${previousPost.uid}`}>
-                  <a>Post anterior</a>
-                </Link>
-              </>
-            )}
-          </div>
-
-          <div>
-            {nextPost && (
-              <>
-                <p>{nextPost.title}</p>
-                <Link href={`/post/${nextPost.uid}`}>
-                  <a>Próximo post</a>
-                </Link>
-              </>
-            )}
-          </div>
-        </aside>
-
-        <Comments />
-
-        {preview && <PreviewButton />}
-      </main>
-    </>
+        ))}
+      </article>
+    </main>
   );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const prismic = getPrismicClient();
-
-  const posts = await prismic.query(
+  const postsResponse = await prismic.query(
     [Prismic.predicates.at('document.type', 'post')],
-    { pageSize: 3 }
+    { fetch: [''], pageSize: 8 }
   );
 
-  const paths = posts.results.map(result => {
-    return {
-      params: {
-        slug: result.uid,
-      },
-    };
-  });
+  const paths = postsResponse.results.map(({ uid }) => ({
+    params: { slug: uid },
+  }));
 
-  return {
-    paths,
-    fallback: true,
-  };
+  return { paths, fallback: true };
 };
 
-function verifyNextPost(post, slug): NextPost | null {
-  return slug === post.results[0].uid
-    ? null
-    : {
-        title: post.results[0]?.data?.title,
-        uid: post.results[0]?.uid,
-      };
-}
-
-export const getStaticProps: GetStaticProps<PostProps> = async ({
-  params,
-  preview = false,
-}) => {
-  const { slug } = params;
-
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const prismic = getPrismicClient();
-
-  const response = await prismic.getByUID('post', String(slug), {});
-
-  const responsePreviousPost = await prismic.query(
-    Prismic.Predicates.at('document.type', 'post'),
-    {
-      pageSize: 1,
-      after: slug,
-      orderings: '[document.first_publication_date desc]',
-    }
-  );
-
-  const responseNextPost = await prismic.query(
-    Prismic.Predicates.at('document.type', 'post'),
-    { pageSize: 1, after: slug, orderings: '[document.first_publication_date]' }
-  );
-
-  const previousPost = verifyNextPost(responsePreviousPost, slug);
-
-  const nextPost = verifyNextPost(responseNextPost, slug);
+  const response = await prismic.getByUID('post', params.slug as string, {});
 
   const post: Post = {
+    data: {
+      ...response.data,
+      content: response.data.content.map(section => ({
+        heading: section.heading,
+        body: section.body,
+      })),
+    },
     uid: response.uid,
     first_publication_date: response.first_publication_date,
-    last_publication_date: response.last_publication_date,
-    data: {
-      title: response.data.title,
-      subtitle: response.data.subtitle,
-      banner: response.data.banner,
-      author: response.data.author,
-      content: response.data.content,
-    },
   };
 
-  return {
-    props: {
-      post,
-      preview,
-      nextPost,
-      previousPost,
-    },
-    revalidate: 60 * 60, // 60 minutes
-  };
+  return { props: { post } };
 };
