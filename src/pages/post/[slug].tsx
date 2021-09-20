@@ -36,21 +36,21 @@ interface PostPageProps {
   post: Post;
 }
 
-// function getPostWordsAmount(content: Post['data']['content']): number {
-//   const ALL_SPACES_REGEX = /\s+/g;
+function getPostWordsAmount(content: Post['data']['content']): number {
+  const ALL_SPACES_REGEX = /\s+/g;
 
-//   return content.reduce((sum: number, section) => {
-//     const headingWordsAmount = section.heading
-//       ? section.heading?.split(ALL_SPACES_REGEX).length
-//       : 0;
+  return content.reduce((sum: number, section) => {
+    const headingWordsAmount = section.heading
+      ? section.heading?.split(ALL_SPACES_REGEX).length
+      : 0;
 
-//     const bodyWordsAmount = RichText.asText(section.body).split(
-//       ALL_SPACES_REGEX
-//     ).length;
+    const bodyWordsAmount = RichText.asText(section.body).split(
+      ALL_SPACES_REGEX
+    ).length;
 
-//     return headingWordsAmount + bodyWordsAmount + sum;
-//   }, 0);
-// }
+    return headingWordsAmount + bodyWordsAmount + sum;
+  }, 0);
+}
 
 function getAproxReadingDuration(
   wordsAmount: number,
@@ -65,9 +65,10 @@ function getAproxReadingDuration(
 export default function Post({ post }: PostPageProps): JSX.Element {
   const router = useRouter();
 
+  console.log(post)
+
   const aproxReadingDuration = getAproxReadingDuration(
-    // getPostWordsAmount(post.data.content)
-    12
+    getPostWordsAmount(post.data.content)
   );
 
   return router.isFallback ? (
@@ -91,9 +92,9 @@ export default function Post({ post }: PostPageProps): JSX.Element {
             <h2 className={styles.postContentTitle}>{section.heading}</h2>
             <div
               className={styles.postContentBody}
-              // dangerouslySetInnerHTML={{
-              //   __html: RichText.asHtml(section.body),
-              // }}
+              dangerouslySetInnerHTML={{
+                __html: RichText.asHtml(section.body),
+              }}
             />
           </div>
         ))}
