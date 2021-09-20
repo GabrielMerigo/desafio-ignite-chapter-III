@@ -1,5 +1,5 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { RichText } from 'prismic-dom';
+import { RichText } from 'prismic-dom'
 import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 import Prismic from '@prismicio/client';
 import { useRouter } from 'next/router';
@@ -64,8 +64,6 @@ function getAproxReadingDuration(
 
 export default function Post({ post }: PostPageProps): JSX.Element {
   const router = useRouter();
-
-  console.log(post)
 
   const aproxReadingDuration = getAproxReadingDuration(
     getPostWordsAmount(post.data.content)
