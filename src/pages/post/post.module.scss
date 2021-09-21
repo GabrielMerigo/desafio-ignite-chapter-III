@@ -1,44 +1,61 @@
-.postWrapper {
-  padding: 5rem 0;
-  display: grid;
-  gap: 4rem;
+.banner {
+  height: 25rem;
+  width: 100%;
+  margin-bottom: 5rem;
 }
 
-.postTitle {
-  font-size: 3rem;
-  color: var(--heading);
-  margin-bottom: 1.5rem;
+.post {
+  margin: 0 auto;
+  max-width: 720px;
+  padding: 0 0 2rem 1.2rem;
+
+  h1 {
+    color: var(--heading);
+    font-size: 3rem;
+    line-height: 3.5rem;
+    letter-spacing: -0.5px;
+    margin-bottom: 1.5rem;
+  }
 }
 
-.postMetadata {
+.postInfos {
   display: flex;
-  gap: 1.5rem;
+
+  div {
+    align-items: center;
+    color: var(--info);
+    display: flex;
+
+    svg {
+      margin-right: 0.5rem;
+    }
+
+    & + div {
+      margin-left: 1.5rem;
+    }
+  }
 }
 
-.postContentTitle {
-  font-size: 2.25rem;
-  color: var(--heading);
-  margin-bottom: 3rem;
-}
+.postContent {
+  margin-top: 4rem;
 
-.postContentBody {
-  color: var(--body);
-  margin-bottom: 3rem;
-  font-size: 1.125rem;
-  text-align: justify;
+  div {
+    & + div {
+      margin-top: 4.5rem;
+    }
 
-  p {
-    margin-bottom: 1rem;
-  }
+    h2 {
+      color: var(--heading);
+      font-size: 2.25rem;
+      line-height: 3rem;
+      margin-bottom: 4rem;
+      text-align: justify;
+    }
 
-  a {
-    color: var(--highlight);
-  }
-
-  ul {
-    li {
-      list-style-type: circle;
-      margin-bottom: 1rem;
+    p {
+      color: var(--body);
+      font-size: 1.125rem;
+      line-height: 1.5rem;
     }
   }
 }

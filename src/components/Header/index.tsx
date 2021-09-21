@@ -1,28 +1,18 @@
+import { ReactElement } from 'react';
 import Link from 'next/link';
 
-import commonStyles from '../../styles/common.module.scss';
-import styles from './Header.module.scss';
+import styles from './header.module.scss';
 
-interface HeaderProps {
-  isCurrentPageIndex?: boolean;
-}
-
-export default function Header({
-  isCurrentPageIndex,
-}: HeaderProps): JSX.Element {
+export default function Header(): ReactElement {
   return (
-    <header
-      className={`${styles.wrapper} ${
-        isCurrentPageIndex ? styles.hasMarginTop : ''
-      }`}
-    >
-      <div className={commonStyles.container}>
+    <header className={styles.container}>
+      <nav className={styles.content}>
         <Link href="/">
           <a>
             <img src="/logo.svg" alt="logo" />
           </a>
         </Link>
-      </div>
+      </nav>
     </header>
   );
 }

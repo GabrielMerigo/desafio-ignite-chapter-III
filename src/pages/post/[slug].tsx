@@ -1,26 +1,21 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { RichText } from 'prismic-dom'
-import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
+import { ReactElement } from 'react';
 import Prismic from '@prismicio/client';
+import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
 import { useRouter } from 'next/router';
-
-import { Label } from '../../components/Label';
-import { PostBanner } from '../../components/PostBanner';
-
+import Header from '../../components/Header';
 import { getPrismicClient } from '../../services/prismic';
-
-import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
-import { formatDate } from '../../utils/format';
 
 interface Post {
   first_publication_date: string | null;
-  uid?: string;
   data: {
     title: string;
     banner: {
       url: string;
-      alt?: string;
     };
     author: string;
     content: {
@@ -32,104 +27,112 @@ interface Post {
   };
 }
 
-interface PostPageProps {
+interface PostProps {
   post: Post;
 }
 
-function getPostWordsAmount(content: Post['data']['content']): number {
-  const ALL_SPACES_REGEX = /\s+/g;
-
-  return content.reduce((sum: number, section) => {
-    const headingWords = section.heading
-      ? section.heading?.split(ALL_SPACES_REGEX).length
-      : 0;
-
-    const bodyWords = RichText.asText(section.body).split(
-      ALL_SPACES_REGEX
-    ).length;
-
-    return headingWords + bodyWords + sum;
-  }, 0);
-}
-
-function getAproxReadingDuration(
-  wordsAmount: number,
-  wordsPerMinute = 200
-): string {
-  const aproxReadingDurationInMinutes = wordsAmount / wordsPerMinute;
-  return aproxReadingDurationInMinutes < 1
-    ? '< 1 min'
-    : `${Math.ceil(aproxReadingDurationInMinutes)} min`;
-}
-
-export default function Post({ post }: PostPageProps): JSX.Element {
+export default function Post({ post }: PostProps): ReactElement {
   const router = useRouter();
 
-  const aproxReadingDuration = getAproxReadingDuration(
-    getPostWordsAmount(post.data.content)
-  );
+  function readingTime(): number {
+    const qtd = post.data.content.reduce((acc, contentValue) => {
+      const qtdHeading = contentValue.heading.split(/\s/g).length;
 
-  return router.isFallback ? (
-    <p>Carregando...</p>
-  ) : (
-    <main>
-      <PostBanner alt={post.data.banner.alt} imageUrl={post.data.banner.url} />
-      <article className={`${commonStyles.container} ${styles.postWrapper}`}>
-        <div>
-          <h1 className={styles.postTitle}>{post.data.title}</h1>
-          <div className={styles.postMetadata}>
-            <Label icon={<FiCalendar />}>
-              {formatDate(new Date(post.first_publication_date))}
-            </Label>
-            <Label icon={<FiUser />}>{post.data.author}</Label>
-            <Label icon={<FiClock />}>{aproxReadingDuration}</Label>
-          </div>
-        </div>
-        {post.data.content.map(section => (
-          <div key={section.heading}>
-            <h2 className={styles.postContentTitle}>{section.heading}</h2>
-            <div
-              className={styles.postContentBody}
-              dangerouslySetInnerHTML={{
-                __html: RichText.asHtml(section.body),
-              }}
-            />
-          </div>
-        ))}
-      </article>
-    </main>
+      const qtdBody = contentValue.body.reduce((accBody, valueBody) => {
+        const bodyWords = valueBody.text.split(/\s/g).length;
+        return accBody + bodyWords;
+      }, 0);
+
+      return qtdHeading + qtdBody;
+    }, 0);
+    return Math.ceil(qtd / 200) + 1;
+  }
+
+  return (
+    <>
+      <Header />
+
+      {router.isFallback && <div>Carregando...</div>}
+
+      {post && (
+        <>
+          <img className={styles.banner} src={post.data.banner.url} alt={post.data.title} />
+
+          <article className={styles.post}>
+            <h1>{post.data.title}</h1>
+
+            <div className={styles.postInfos}>
+              <div>
+                <FiCalendar />{' '}
+                {format(new Date(post.first_publication_date), 'dd MMM yyyy', {
+                  locale: ptBR,
+                })}
+              </div>
+
+              <div>
+                <FiUser /> {post.data.author}
+              </div>
+
+              <div>
+                <FiClock /> {readingTime()} min
+              </div>
+            </div>
+
+            <main className={styles.postContent}>
+              {post.data.content.map(({ heading, body }) => (
+                <div key={heading}>
+                  <h2>{heading}</h2>
+
+                  {body.map(({ text }) => (
+                    <p key={text}>{text}</p>
+                  ))}
+                </div>
+              ))}
+            </main>
+          </article>
+        </>
+      )}
+    </>
   );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const prismic = getPrismicClient();
-  const postsResponse = await prismic.query(
-    [Prismic.predicates.at('document.type', 'post')],
-    { fetch: [''], pageSize: 8 }
-  );
+  const posts = await prismic.query(Prismic.predicates.at('document.type', 'post'), {
+    fetch: [''],
+    pageSize: 3,
+  });
 
-  const paths = postsResponse.results.map(({ uid }) => ({
-    params: { slug: uid },
-  }));
-
-  return { paths, fallback: true };
+  return {
+    paths: posts.results.map(post => ({
+      params: {
+        slug: post.uid,
+      },
+    })),
+    fallback: true,
+  };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async context => {
   const prismic = getPrismicClient();
-  const response = await prismic.getByUID('post', params.slug as string, {});
+  const response = await prismic.getByUID('post', String(context.params.slug), {});
+  console.log(response)
 
-  const post: Post = {
-    data: {
-      ...response.data,
-      content: response.data.content.map(section => ({
-        heading: section.heading,
-        body: section.body,
-      })),
-    },
+  const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    data: {
+      title: response.data.title,
+      subtitle: response.data.subtitle,
+      banner: {
+        url: response.data.banner.url,
+      },
+      author: response.data.author,
+      content: response.data.content,
+    },
   };
 
-  return { props: { post } };
+  return {
+    props: { post },
+  };
 };
